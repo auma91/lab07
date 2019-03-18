@@ -76,11 +76,66 @@ app.use(express.static(__dirname + '/'));//This line is necessary for us to use 
   			and show the total number of wins/losses for the season.
 
   		/player_info - get request (no parameters)
-  			This route will handle a single query to the football_players table which will retrieve the id & name for all of the football players.
-  			Next it will pass this result to the player_info view (pages/player_info), which will use the ids & names to populate the select tag for a form 
+        This route will handle a single query to the football_players table which will retrieve the id & name for all of the football players.
+        Next it will pass this result to the player_info view (pages/player_info), which will use the ids & names to populate the select tag for a form 
+        
+      /player_info/select_player - get request (player_id)
+        This route will handle three queries and a work with a single parameter.  
+      Parameter:
+        player_id - this will be a single number that refers to the football player's id.
+        Queries:
+          1. Retrieve the user id's & names of the football players (just like in /player_info)
+          2. Retrieve the specific football player's informatioin from the football_players table
+          3. Retrieve the total number of football games the player has played in
 ************************************/
 
+app.get('/player_info/select_player', function(req,res) {
+  //var total_players = req.query.player_choice;
+  //var selplayer;
+  /*var sel = document.getElementsByName("player_choice");
+  if(sel.options[sel.selectedIndex].text != "Select Player") {
+    selplayer = sel.options[sel.selectedIndex].id;
+  }*/
+  var playername = req.query.player_choice;
+  console.log(playername);
+  var total_players = 'SELECT * FROM football_players;';
+  var player_stat = "SELECT * FROM football_players WHERE name= '"+playername+"';";
+  var games;
+  if (playername=='Cedric Vega') {games = 'SELECT COUNT(*) FROM football_games WHERE 1 = ANY (players);';}
+  else if (playername=='Myron Walters') {games = 'SELECT COUNT(*) FROM football_games WHERE 2 = ANY (players);';}
+  else if (playername=='Javier Washington') {games = 'SELECT COUNT(*) FROM football_games WHERE 3 = ANY (players);';}
+  else if (playername=='Wade Farmer') {games = 'SELECT COUNT(*) FROM football_games WHERE 4 = ANY (players);';}
+  else if (playername=='Doyle Huff') {games = 'SELECT COUNT(*) FROM football_games WHERE 5 = ANY (players);';}
+  else if (playername=='Melba Pope') {games = 'SELECT COUNT(*) FROM football_games WHERE 6 = ANY (players);';}
+  else if (playername=='Erick Graves') {games = 'SELECT COUNT(*) FROM football_games WHERE 7 = ANY (players);';}
+  else if (playername=='Charles Porter') {games = 'SELECT COUNT(*) FROM football_games WHERE 8 = ANY (players);';}
+  else if (playername=='Rafael Boreous') {games = 'SELECT COUNT(*) FROM football_games WHERE 9 = ANY (players);';}
+  else {games = 'SELECT COUNT(*) FROM football_games WHERE 10 = ANY (players);';}
+  console.log(games);
+  db.task('get-info', task => {
+          return task.batch([
+              task.any(total_players),
+              task.any(player_stat),
+              task.any(games)
+          ]);
+      })
+      .then(info => {
+        res.render('pages/player_info',{
+          my_title: "Player info",
+          data: info[0],
+          player_row: info[1],
+          game: info[2][0].count
+        })
+      })
+});
+
 app.get('/player_info', function(req,res) {
+  //var total_players = req.query.player_choice;
+  //var selplayer;
+  /*var sel = document.getElementsByName("player_choice");
+  if(sel.options[sel.selectedIndex].text != "Select Player") {
+    selplayer = sel.options[sel.selectedIndex].id;
+  }*/
   var total_players = 'SELECT * FROM football_players;';
   db.task('get-info', task => {
           return task.batch([
@@ -91,6 +146,8 @@ app.get('/player_info', function(req,res) {
         res.render('pages/player_info',{
           my_title: "Player info",
           data: info[0],
+          player_row: "",
+          game: ""
         })
       })
 });

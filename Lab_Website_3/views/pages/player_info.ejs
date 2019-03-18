@@ -7,24 +7,17 @@
 				<div class="card">
 				<!-- TODO: Modify the ejs code below, to conditionally set the image_src to be from our chosen player -->
 				  <% 
-				  var selplayer;
 				  var image_src = '../resources/img/helmet.jpg';
-				  var sel = document.getElementsByName("player_choice");
-				  if(sel.options[sel.selectedIndex].text != "Select Player") {
-				  	selplayer = sel.options[sel.selectedIndex].id
-				  }
-				  print(selplayer);
-				  if (data) { 
-						var row = '';
-						data.forEach(function(item){
-							if(item.id == selplayer) {
-								image_src = item.img_src;
-							}
-						});
+				  if (player_row) {
+									player_row.forEach(function(item){
+										image_src = item.img_src;
+									});
+
+								}
 				  %>
 				 <img class="card-img-top" id="player_img" src= "<%- image_src %>" alt="Image of Football Player">
 				  <div class="card-body mx-auto">
-					<form class="form"action="/player_info/post" method="get">
+					<form class="form"action="/player_info/select_player" method="get">
 						<select class="custom-select" name="player_choice" onchange="this.form.submit()">
 							 <option selected>Select Player</option>
 							 <!-- TODO: Populate our select with player options
@@ -50,6 +43,25 @@
 							<!-- TODO: Set Player Information
 							 			If a player has been selected, fill in their information in each of the fields below.
 							 		    You'll need to calculate here the player's average rushing, receiving, and passing yards.-->
+							<%
+								var year = "";
+								var major = "";
+								var avg_pass; 
+								var avg_rus;
+								var avg_rec;
+								if (player_row) {
+									player_row.forEach(function(item){
+										year = item.year;
+										major = item.major;
+										if (game) {
+											avg_pass = Math.round(item.passing_yards/game);
+											avg_rus = Math.round(item.rushing_yards/game);
+											avg_rec = Math.round(item.receiving_yards/game);
+										}
+									});
+
+								}
+							%>	
 							<th>Year</th>
 							<td>	<%- year %> </td>
 						</tr>
@@ -59,7 +71,7 @@
 						</tr>
 						<tr>
 							<th>Games Played</th>
-							<td>	<%- games_played %></td>
+							<td>	<%- game %></td>
 						</tr>
 						<tr>
 							<td>Passing Yards: </td>
